@@ -14,7 +14,7 @@ class Hero:
         
     def camera_bind(self):
         base.disableMouse()
-        base.camera.setH(100)
+        base.camera.setH(180)
         base.camera.reparentTo(self.hero)
         base.camera.setPos(0, 0, 1.5)
         self.camera_mode = True
@@ -32,26 +32,49 @@ class Hero:
         else:
             self.camera_bind()
             
+    def change_mode(self):
+        if self.game_mode:
+            self.game_mode = False
+        else:
+            self.game_mode = True
+            
     def turn_left(self):
         self.hero.setH((self.hero.getH() + 5) % 360)
         
     def turn_right(self):
         self.hero.setH((self.hero.getH() - 5) % 360)
+    
+    def look_at(self, angle):
+        x = round(self.hero.getX())
+        y = round(self.hero.getY())
+        z = round(self.hero.getZ())
         
-    def move_to(self):
+        dx, dy = self.check_dir(angle)
+        
+        return x + dx, y + dy, z
+        
+    def move_to(self, angle):
         """Обираємо як рухати гравця в залежності від режиму гри"""
         if self.game_mode:
-            self.just_move()
+            self.just_move(angle)
         else:
-            self.try_move()
+            self.try_move(angle)
     
-    def just_move(self):
+    def just_move(self, angle):
         """рух гравця в режимі спостерігача"""
-        pass
+        pos = self.look_at(angle)
+        self.hero.setPos(pos)
     
-    def try_move(self):
+    def try_move(self, angle):
         """рух гравця в ігровому рижимі"""
-        pass
+        pos = self.look_at(angle)
+        if self.land.is_empty(pos):
+            pos = self.land.find_hightest_empty(pos)
+            self.hero.setPos(pos)
+        else:
+            pos = pos[0], pos[1], pos[2] + 1
+            if self.land.is_empty(pos):
+                self.hero.setPos(pos)
     
     def check_dir(self, angle):
        ''' повертає заокруглені зміни координат X, Y,
@@ -89,12 +112,69 @@ class Hero:
        else:
            return 0, -1
 
+    def accept_events(self, angle):
+        x = (self.hero.getX())
+        y = (self.hero.getY())
+        z = (self.hero.getZ())
+
+        dx, dy = self.check_dir(angle)
+
+        return x + dx, y + dy, z
+    
+    def forward(self):
+        angle = self.hero.getH() % 360
+        self.move_to(angle)
         
+    def left(self):
+        angle = (self.hero.getH() + 90) % 360
+        self.move_to(angle)
+
+    def right(self):
+        angle = (self.hero.getH() - 90) % 360
+        self.move_to(angle)
+
+    def back(self):
+        angle = (self.hero.getH() + 180) % 360
+        self.move_to(angle)
+
+    def up(self):
+        if self.game_mode:
+            self.hero.setZ(self.hero.getZ() + 1)
+
+    def down(self):
+        if self.game_mode:
+            self.hero.setZ(self.hero.getZ() - 1)
             
+    def buld(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.game_mode:
+            self.land.add_block(pos)
+        else:
+            self.land.buld_block(pos)
+            
+    def destroy(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.game_mode:
+            self.land.destroy_block(pos)
+        else:
+            self.land.del_block_from(pos)
+
     def accept_events(self):
         base.accept("c", self.swich_camera)
         base.accept("n", self.turn_left)
         base.accept("n" + "-repeat", self.turn_left)
         base.accept("m", self.turn_right)
         base.accept("m" + "-repeat", self.turn_right)
+        base.accept("w", self.forward)
+        base.accept("s", self.back)
+        base.accept("a", self.left)
+        base.accept("d", self.right)
+        base.accept("q", self.down)
+        base.accept("e", self.up)
+        base.accept("z", self.change_mode)
+        base.accept("v", self.buld)
+        base.accept("b", self.destroy)
+
             

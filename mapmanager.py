@@ -31,6 +31,7 @@ class Mapmanager:
         color = self.set_color(position[2])
         self.block.setColor(color)
         self.block.setPos(position)
+        self.block.setTag("at", str(position))
         self.block.reparentTo(self.land)
         
     def load_map(self, filename):
@@ -45,3 +46,30 @@ class Mapmanager:
                     x += 1
                 y += 1
             return x, y
+        
+    def find_blocks(self, pos):
+        return self.land.findAllMatches("=at=" + str(pos))
+    
+    def is_empty(self, pos):
+        if self.find_blocks(pos):
+            return False
+        else:
+            return True
+        
+    def find_hightest_empty(self, pos):
+        x, y, z = pos
+        z = 1
+        while not self.is_empty((x, y, z)):
+            z += 1
+        return (x, y, z)
+    
+    def buld_block(self, pos):
+        pass
+
+    def destroy_block(self, pos):
+        blocks = self.find_blocks(pos)
+        for block in blocks:
+            block.removeNode()
+    
+    def del_block_from(self, pos):
+        pass
