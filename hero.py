@@ -8,6 +8,9 @@ class Hero:
         self.hero.setScale(0.3)
         self.hero.setPos(position)
         self.hero.reparentTo(render)
+        self.damage_snd = base.loader.loadSfx("sounds/inecraft_damage.ogg")
+        self.buidl_snd = base.loader.loadSfx("sounds/build.ogg")
+        self.up_snd = base.loader.loadSfx("sounds/up.mp3")
         
         self.camera_bind()
         self.accept_events()
@@ -71,10 +74,13 @@ class Hero:
         if self.land.is_empty(pos):
             pos = self.land.find_hightest_empty(pos)
             self.hero.setPos(pos)
+            self.up_snd.play()
         else:
             pos = pos[0], pos[1], pos[2] + 1
             if self.land.is_empty(pos):
                 self.hero.setPos(pos)
+            self.up_snd.play()
+
     
     def check_dir(self, angle):
        ''' повертає заокруглені зміни координат X, Y,
@@ -152,6 +158,7 @@ class Hero:
             self.land.add_block(pos)
         else:
             self.land.buld_block(pos)
+        self.buidl_snd.play()
             
     def destroy(self):
         angle = self.hero.getH() % 360

@@ -94,8 +94,8 @@ class Mapmanager:
                 pickle.dump(pos, file)
 
     def load_map_from_file(self):
-        whith open("my_map.dat", "rb") as file:
-        length = pickle.load(file)
-        for i in range(length):
-            pos = pickle.load(file)
-            self.add_block(pos)
+        with open("my_map.dat", "rb") as file:
+            length = pickle.load(file)
+            for i in range(length):
+                pos = pickle.load(file)
+                self.add_block(pos)
